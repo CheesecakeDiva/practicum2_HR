@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # 1. Сервис базы данных
+  postgres:
+    image: postgres:16.9
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+
+  # 2. Django
+  web:
+    build:
+      context: .
+    environment:
+      DB_PASS: ${DB_PASS}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: postgres
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DEBUG: ${DEBUG}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+    depends_on:
+      - postgres
+    volumes:
+      - django_static:/usr/src/app/static
+
+  # 3. Nginx
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - django_static:/var/www/static
+
+
+volumes:
+  django_static:
+
