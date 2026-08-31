@@ -22,3 +22,5 @@ class ResumePermission(BasePermission):
             return request.method in SAFE_METHODS
 
         return obj.user == request.user
+
+
